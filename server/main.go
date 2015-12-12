@@ -1,9 +1,14 @@
 package main
 
 import (
+	"io/ioutil"
 	"encoding/json"
 	"net/http"
 )
+
+type Menu struct {
+	Items []MenuItem `json:"menu"`
+}
 
 type MenuItem struct {
 	ID           string  `json:"id"`
@@ -16,13 +21,24 @@ type MenuItem struct {
 	Photographer string  `json:"photographer"`
 }
 
+var menu Menu
+
+func loadMenu() Menu {
+	  m := Menu{}
+    body, err := ioutil.ReadFile("menu.json")
+		if err == nil {
+			json.Unmarshal(body, &m)
+		}
+    return m
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
-	salad := MenuItem{"chicken-pomegranate-salad", "Chicken Pomegranate Salad", "", 430, 4.1, "Fud. Is good", "", ""}
-	b, _ := json.Marshal(salad)
+	b, _ := json.Marshal(menu)
 	w.Write(b)
 }
 
 func main() {
+	  menu = loadMenu()
     http.HandleFunc("/", handler)
     http.ListenAndServe(":8080", nil)
 }
