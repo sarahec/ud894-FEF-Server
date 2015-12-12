@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"encoding/json"
+	"net/http"
 )
 
 type MenuItem struct {
@@ -17,11 +16,13 @@ type MenuItem struct {
 	Photographer string  `json:"photographer"`
 }
 
-func main() {
+func handler(w http.ResponseWriter, r *http.Request) {
 	salad := MenuItem{"chicken-pomegranate-salad", "Chicken Pomegranate Salad", "", 430, 4.1, "Fud. Is good", "", ""}
-	b, err := json.Marshal(salad)
-	if err != nil {
-		fmt.Println(err)
-	}
-	os.Stdout.Write(b)
+	b, _ := json.Marshal(salad)
+	w.Write(b)
+}
+
+func main() {
+    http.HandleFunc("/", handler)
+    http.ListenAndServe(":8080", nil)
 }
