@@ -1,2 +1,9 @@
+# Don't include Mac OS-specific files
 .DS_Store
+
+# No editing tempfiles either
 *~
+
+# Nor the built binary. (I know, I'm a spoilsport)
+main
+
