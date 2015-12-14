@@ -1,8 +1,8 @@
 package main
 
 import (
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -23,13 +23,51 @@ type MenuItem struct {
 
 var menu Menu
 
-func loadMenu() Menu {
-	  m := Menu{}
-    body, err := ioutil.ReadFile("_data/menu.json")
-		if err == nil {
-			json.Unmarshal(body, &m)
+// Searches for the specified id string in the menu, returning its index
+// or -1 if not found
+func (menu *Menu) indexOf(id string) int {
+	for i, v := range menu.Items {
+		if v.ID == id {
+			return i
 		}
-    return m
+	}
+	return -1
+}
+
+func (menu *Menu) Put(item *MenuItem) {
+	probe := menu.indexOf(item.ID)
+	if probe == -1 {
+		menu.Items = append(menu.Items, *item)
+	} else {
+		menu.Items[probe] = *item
+	}
+}
+
+func (menu *Menu) Get(id string) *MenuItem {
+	probe := menu.indexOf(id)
+	if probe == -1 {
+		return nil
+	}
+	found := menu.Items[probe]
+	return &found
+}
+
+func (menu *Menu) Remove(id string) {
+	i := menu.indexOf(id)
+	if i == -1 {
+		return
+	}
+	// delete the ith item
+	menu.Items = menu.Items[:i+copy(menu.Items[i:], menu.Items[i+1:])]
+}
+
+func loadMenu() Menu {
+	m := Menu{}
+	body, err := ioutil.ReadFile("_data/menu.json")
+	if err == nil {
+		json.Unmarshal(body, &m)
+	}
+	return m
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +76,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	  menu = loadMenu()
-    http.HandleFunc("/", handler)
-    http.ListenAndServe(":8080", nil)
+	menu = loadMenu()
+	http.HandleFunc("/", handler)
+	http.ListenAndServe(":8080", nil)
 }
