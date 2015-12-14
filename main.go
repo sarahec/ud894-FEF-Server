@@ -25,7 +25,7 @@ var menu Menu
 
 func loadMenu() Menu {
 	  m := Menu{}
-    body, err := ioutil.ReadFile("menu.json")
+    body, err := ioutil.ReadFile("_data/menu.json")
 		if err == nil {
 			json.Unmarshal(body, &m)
 		}
