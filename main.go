@@ -81,17 +81,21 @@ func (menu *Menu) Save() error {
 	if (err != nil) {
 		return err
 	}
-	err = ioutil.WriteFile(path, body, 0666)
+	err = ioutil.WriteFile(path, body, 0644)
 	return err
 }
 
-func loadMenu() Menu {
-	m := Menu{}
-	body, err := ioutil.ReadFile("_data/menu.json")
-	if err == nil {
-		json.Unmarshal(body, &m)
+func (menu *Menu) Load() error {
+	var path = filepath
+	if (menu.testpath != "") {
+		path = menu.testpath
 	}
-	return m
+	body, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(body, &menu)
+	return err
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -100,7 +104,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	menu = loadMenu()
+	menu := &Menu{}
+	menu.Load()
 	http.HandleFunc("/", handler)
 	http.ListenAndServe(":8080", nil)
 }
