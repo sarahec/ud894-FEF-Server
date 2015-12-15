@@ -64,7 +64,6 @@ func (menu *Menu) Remove(id string) {
 	menu.Items = menu.Items[:i+copy(menu.Items[i:], menu.Items[i+1:])]
 }
 
-
 func loadMenu() Menu {
 	m := Menu{}
 	body, err := ioutil.ReadFile("_data/menu.json")
@@ -81,6 +80,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	menu = loadMenu()
-	http.HandleFunc("/", handler)
+	http.Handle("/", http.FileServer(http.Dir("_www")))
 	http.ListenAndServe(":8080", nil)
 }
