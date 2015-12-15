@@ -38,6 +38,11 @@ func (menu *Menu) indexOf(id string) int {
 }
 
 // Put this menu item into the collection, overwriting the one with the same ID if it exists.
+func (menu *Menu) reset() {
+	menu.Items = make([]MenuItem, 0)
+}
+
+// Put this menu item into the collection, overwriting the one with the same ID if it exists.
 func (menu *Menu) Put(item *MenuItem) {
 	probe := menu.indexOf(item.ID)
 	if probe == -1 {
