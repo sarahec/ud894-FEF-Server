@@ -7,8 +7,11 @@ import (
 )
 
 type Menu struct {
-	Items []MenuItem `json:"menu"`
+	Items    []MenuItem `json:"menu"`
+	testpath string     // file path used only in unit testing
 }
+
+const filepath = "_data/menu.json"
 
 type MenuItem struct {
 	ID           string  `json:"id"`
@@ -21,8 +24,6 @@ type MenuItem struct {
 	Photographer string  `json:"photographer"`
 }
 
-var menu Menu
-
 // Searches for the specified id string in the menu, returning its index
 // or -1 if not found
 func (menu *Menu) indexOf(id string) int {
@@ -32,6 +33,11 @@ func (menu *Menu) indexOf(id string) int {
 		}
 	}
 	return -1
+}
+
+// Put this menu item into the collection, overwriting the one with the same ID if it exists.
+func (menu *Menu) reset() {
+	menu.Items = make([]MenuItem, 0)
 }
 
 // Put this menu item into the collection, overwriting the one with the same ID if it exists.
@@ -64,14 +70,33 @@ func (menu *Menu) Remove(id string) {
 	menu.Items = menu.Items[:i+copy(menu.Items[i:], menu.Items[i+1:])]
 }
 
-func loadMenu() Menu {
-	m := Menu{}
-	body, err := ioutil.ReadFile("_data/menu.json")
-	if err == nil {
-		json.Unmarshal(body, &m)
+func (menu *Menu) Save() error {
+	var path = filepath
+	if menu.testpath != "" {
+		path = menu.testpath
 	}
-	return m
+	body, err := json.Marshal(menu)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(path, body, 0644)
+	return err
 }
+
+func (menu *Menu) Load() error {
+	var path = filepath
+	if menu.testpath != "" {
+		path = menu.testpath
+	}
+	body, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(body, &menu)
+	return err
+}
+
+var menu *Menu
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	b, _ := json.Marshal(menu)
@@ -79,7 +104,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	menu = loadMenu()
+	menu = &Menu{}
+	menu.Load()
 	http.Handle("/", http.FileServer(http.Dir("_www")))
+	http.HandleFunc("/items", handler)
 	http.ListenAndServe(":8080", nil)
 }

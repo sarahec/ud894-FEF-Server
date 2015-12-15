@@ -73,3 +73,12 @@ func TestRemove(t *testing.T) {
 		t.Errorf("Expected item two to exist")
 	}
 }
+
+func TestReset(t *testing.T) {
+	m := &Menu{}
+	m.Put(&MenuItem{ID: "item-one", Name: "Item one"})
+	m.reset()
+	if length := len(m.Items); length != 0 {
+		t.Errorf("Expected no items after reset, but counted %v", length)
+	}
+}
