@@ -7,8 +7,8 @@ import (
 )
 
 type Menu struct {
-	Items []MenuItem `json:"menu"`
-	testpath string // file path used only in unit testing
+	Items    []MenuItem `json:"menu"`
+	testpath string     // file path used only in unit testing
 }
 
 const filepath = "_data/menu.json"
@@ -23,8 +23,6 @@ type MenuItem struct {
 	Source       string  `json:"source"`
 	Photographer string  `json:"photographer"`
 }
-
-var menu Menu
 
 // Searches for the specified id string in the menu, returning its index
 // or -1 if not found
@@ -74,11 +72,11 @@ func (menu *Menu) Remove(id string) {
 
 func (menu *Menu) Save() error {
 	var path = filepath
-	if (menu.testpath != "") {
+	if menu.testpath != "" {
 		path = menu.testpath
 	}
 	body, err := json.Marshal(menu)
-	if (err != nil) {
+	if err != nil {
 		return err
 	}
 	err = ioutil.WriteFile(path, body, 0644)
@@ -87,7 +85,7 @@ func (menu *Menu) Save() error {
 
 func (menu *Menu) Load() error {
 	var path = filepath
-	if (menu.testpath != "") {
+	if menu.testpath != "" {
 		path = menu.testpath
 	}
 	body, err := ioutil.ReadFile(path)
@@ -98,14 +96,16 @@ func (menu *Menu) Load() error {
 	return err
 }
 
+var menu *Menu
+
 func handler(w http.ResponseWriter, r *http.Request) {
 	b, _ := json.Marshal(menu)
 	w.Write(b)
 }
 
 func main() {
-	menu := &Menu{}
+	menu = &Menu{}
 	menu.Load()
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/items", handler)
 	http.ListenAndServe(":8080", nil)
 }

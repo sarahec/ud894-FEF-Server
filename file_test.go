@@ -1,9 +1,9 @@
 package main
 
 import (
-		"testing"
-		"os"
-	)
+	"os"
+	"testing"
+)
 
 func setTestpath(m *Menu) (filepath string) {
 	filepath = os.TempDir() + "testmodel.json"
@@ -45,13 +45,13 @@ func TestModelReadsFile(t *testing.T) {
 		t.Errorf("Error in save: %v", err)
 	}
 
-	m.reset();
+	m.reset()
 	if len(m.Items) > 0 {
 		t.Errorf("Precondition failed: reset did not work")
 	}
 
-	err = m.Load();
-	if (err != nil) {
+	err = m.Load()
+	if err != nil {
 		t.Errorf("Error in load: %v", err)
 	}
 	if len := len(m.Items); len != 1 {
