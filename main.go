@@ -8,7 +8,10 @@ import (
 
 type Menu struct {
 	Items []MenuItem `json:"menu"`
+	testpath string // file path used only in unit testing
 }
+
+const filepath = "_data/menu.json"
 
 type MenuItem struct {
 	ID           string  `json:"id"`
@@ -64,6 +67,18 @@ func (menu *Menu) Remove(id string) {
 	menu.Items = menu.Items[:i+copy(menu.Items[i:], menu.Items[i+1:])]
 }
 
+func (menu *Menu) Save() error {
+	var path = filepath
+	if (menu.testpath != "") {
+		path = menu.testpath
+	}
+	body, err := json.Marshal(menu)
+	if (err != nil) {
+		return err
+	}
+	err = ioutil.WriteFile(path, body, 0666)
+	return err
+}
 
 func loadMenu() Menu {
 	m := Menu{}
