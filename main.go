@@ -34,6 +34,7 @@ func (menu *Menu) indexOf(id string) int {
 	return -1
 }
 
+// Put this menu item into the collection, overwriting the one with the same ID if it exists.
 func (menu *Menu) Put(item *MenuItem) {
 	probe := menu.indexOf(item.ID)
 	if probe == -1 {
@@ -43,6 +44,7 @@ func (menu *Menu) Put(item *MenuItem) {
 	}
 }
 
+// Get a menu item from the collection, matching in ID. Return nil if not found.
 func (menu *Menu) Get(id string) *MenuItem {
 	probe := menu.indexOf(id)
 	if probe == -1 {
@@ -52,6 +54,7 @@ func (menu *Menu) Get(id string) *MenuItem {
 	return &found
 }
 
+// Remove the menu item with the specified ID from the collection
 func (menu *Menu) Remove(id string) {
 	i := menu.indexOf(id)
 	if i == -1 {
@@ -60,6 +63,7 @@ func (menu *Menu) Remove(id string) {
 	// delete the ith item
 	menu.Items = menu.Items[:i+copy(menu.Items[i:], menu.Items[i+1:])]
 }
+
 
 func loadMenu() Menu {
 	m := Menu{}
