@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"log"
 )
 
 type Menu struct {
@@ -98,7 +99,12 @@ func (menu *Menu) Load() error {
 
 var menu *Menu
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func menuHandler(w http.ResponseWriter, r *http.Request) {
+	method := r.Method
+	if method == "" {
+		method = "GET"
+	}
+	log.Printf("%s %s\n", method, r.RequestURI) // <<<
 	b, _ := json.Marshal(menu)
 	w.Write(b)
 }
@@ -107,6 +113,6 @@ func main() {
 	menu = &Menu{}
 	menu.Load()
 	http.Handle("/", http.FileServer(http.Dir("_www")))
-	http.HandleFunc("/items", handler)
+	http.HandleFunc("/items", menuHandler)
 	http.ListenAndServe(":8080", nil)
 }
