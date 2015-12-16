@@ -2,9 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"io/ioutil"
-	"net/http"
 	"log"
+	"net/http"
 )
 
 type Menu struct {
@@ -24,6 +25,9 @@ type MenuItem struct {
 	Source       string  `json:"source"`
 	Photographer string  `json:"photographer"`
 }
+
+var wwwPathPtr *string
+var doLogPtr, doLogRestPtr *bool
 
 // Searches for the specified id string in the menu, returning its index
 // or -1 if not found
@@ -99,20 +103,34 @@ func (menu *Menu) Load() error {
 
 var menu *Menu
 
-func menuHandler(w http.ResponseWriter, r *http.Request) {
+func logRequest(r *http.Request) {
 	method := r.Method
 	if method == "" {
 		method = "GET"
 	}
-	log.Printf("%s %s\n", method, r.RequestURI) // <<<
+	log.Printf("< %s %s\n", method, r.RequestURI)
+}
+
+func menuHandler(w http.ResponseWriter, r *http.Request) {
+	if *doLogPtr || *doLogRestPtr {
+		logRequest(r)
+	}
 	b, _ := json.Marshal(menu)
+	if *doLogRestPtr {
+		log.Printf("> %s\n\n", b)
+	}
 	w.Write(b)
 }
 
 func main() {
+	wwwPathPtr = flag.String("www", "_www", "path for serving web files")
+	doLogPtr = flag.Bool("log", false, "log incoming requests")
+	doLogRestPtr = flag.Bool("logrest", false, "log REST transactions (requests and responses)")
+	flag.Parse();
+
 	menu = &Menu{}
 	menu.Load()
-	http.Handle("/", http.FileServer(http.Dir("_www")))
+	http.Handle("/", http.FileServer(http.Dir(*wwwPathPtr)))
 	http.HandleFunc("/items", menuHandler)
 	http.ListenAndServe(":8080", nil)
 }
