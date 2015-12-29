@@ -26,7 +26,7 @@ type MenuItem struct {
 	Photographer string  `json:"photographer"`
 }
 
-var wwwPathPtr *string
+var wwwPathPtr, restPathPtr *string
 var doLogPtr, doLogRestPtr *bool
 
 // Searches for the specified id string in the menu, returning its index
@@ -124,13 +124,14 @@ func menuHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	wwwPathPtr = flag.String("www", "_www", "path for serving web files")
+	restPathPtr = flag.String("rest", "/api/items", "prefix for REST path")
 	doLogPtr = flag.Bool("log", false, "log incoming requests")
 	doLogRestPtr = flag.Bool("logrest", false, "log REST transactions (requests and responses)")
-	flag.Parse();
+	flag.Parse()
 
 	menu = &Menu{}
 	menu.Load()
 	http.Handle("/", http.FileServer(http.Dir(*wwwPathPtr)))
-	http.HandleFunc("/items", menuHandler)
+	http.HandleFunc(*restPathPtr, menuHandler)
 	http.ListenAndServe(":8080", nil)
 }
