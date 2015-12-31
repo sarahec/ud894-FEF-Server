@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"strconv"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"fmt"
 )
 
 type Menu struct {
@@ -28,6 +30,7 @@ type MenuItem struct {
 
 var wwwPathPtr, restPathPtr *string
 var doLogPtr, doLogRestPtr *bool
+var portPtr *int
 
 // Searches for the specified id string in the menu, returning its index
 // or -1 if not found
@@ -123,15 +126,28 @@ func menuHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	portPtr = flag.Int("port", 8000, "server port (on localhost, default 8000")
 	wwwPathPtr = flag.String("www", "_www", "path for serving web files")
 	restPathPtr = flag.String("rest", "/api/items", "prefix for REST path")
 	doLogPtr = flag.Bool("log", false, "log incoming requests")
 	doLogRestPtr = flag.Bool("logrest", false, "log REST transactions (requests and responses)")
 	flag.Parse()
 
+	fmt.Println("Front-End Frameworks server")
+	fmt.Println("---------------------------")
+	fmt.Printf("  Serving on http://localhost:%v/\n", *portPtr);
+	fmt.Printf("  Serving files from %v on /\n", *wwwPathPtr);
+	fmt.Printf("  Serving REST requests on %v\n", *restPathPtr);
+	if *doLogPtr || *doLogRestPtr {
+		fmt.Println("  Logging incoming requests");
+	}
+	if *doLogRestPtr {
+		fmt.Println("  Logging outgoing responses");
+	}
+
 	menu = &Menu{}
 	menu.Load()
 	http.Handle("/", http.FileServer(http.Dir(*wwwPathPtr)))
 	http.HandleFunc(*restPathPtr, menuHandler)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":" + strconv.Itoa(*portPtr), nil)
 }
