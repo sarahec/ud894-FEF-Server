@@ -118,7 +118,7 @@ func menuHandler(w http.ResponseWriter, r *http.Request) {
 	if *doLogPtr || *doLogRestPtr {
 		logRequest(r)
 	}
-	b, _ := json.Marshal(menu)
+	b, _ := json.Marshal(menu.Items) // Backbone wants the only the array
 	if *doLogRestPtr {
 		log.Printf("> %s\n\n", b)
 	}
