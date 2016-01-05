@@ -3,19 +3,16 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"strconv"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"fmt"
+	"strconv"
 )
 
 type Menu struct {
-	Items    []MenuItem `json:"menu"`
-	testpath string     // file path used only in unit testing
+	Items []MenuItem `json:"menu"`
 }
-
-const filepath = "_data/menu.json"
 
 type MenuItem struct {
 	ID           string  `json:"id"`
@@ -78,11 +75,7 @@ func (menu *Menu) Remove(id string) {
 	menu.Items = menu.Items[:i+copy(menu.Items[i:], menu.Items[i+1:])]
 }
 
-func (menu *Menu) Save() error {
-	var path = filepath
-	if menu.testpath != "" {
-		path = menu.testpath
-	}
+func (menu *Menu) Save(path string) error {
 	body, err := json.Marshal(menu)
 	if err != nil {
 		return err
@@ -91,11 +84,7 @@ func (menu *Menu) Save() error {
 	return err
 }
 
-func (menu *Menu) Load() error {
-	var path = filepath
-	if menu.testpath != "" {
-		path = menu.testpath
-	}
+func (menu *Menu) Load(path string) error {
 	body, err := ioutil.ReadFile(path)
 	if err != nil {
 		return err
@@ -135,19 +124,21 @@ func main() {
 
 	fmt.Println("Front-End Frameworks server")
 	fmt.Println("---------------------------")
-	fmt.Printf("  Serving on http://localhost:%v/\n", *portPtr);
-	fmt.Printf("  Serving files from %v on /\n", *wwwPathPtr);
-	fmt.Printf("  Serving REST requests on %v\n", *restPathPtr);
+	fmt.Printf("  Serving on http://localhost:%v/\n", *portPtr)
+	fmt.Printf("  Serving files from %v on /\n", *wwwPathPtr)
+	fmt.Printf("  Serving REST requests on %v\n", *restPathPtr)
 	if *doLogPtr || *doLogRestPtr {
-		fmt.Println("  Logging incoming requests");
+		fmt.Println("  Logging incoming requests")
 	}
 	if *doLogRestPtr {
-		fmt.Println("  Logging outgoing responses");
+		fmt.Println("  Logging outgoing responses")
 	}
 
+	const filepath = "_data/menu.json"
+
 	menu = &Menu{}
-	menu.Load()
+	menu.Load(filepath)
 	http.Handle("/", http.FileServer(http.Dir(*wwwPathPtr)))
 	http.HandleFunc(*restPathPtr, menuHandler)
-	http.ListenAndServe(":" + strconv.Itoa(*portPtr), nil)
+	http.ListenAndServe(":"+strconv.Itoa(*portPtr), nil)
 }
