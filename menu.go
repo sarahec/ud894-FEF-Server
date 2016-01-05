@@ -83,4 +83,3 @@ func (menu *Menu) Load(path string) error {
 	err = json.Unmarshal(body, &menu)
 	return err
 }
-

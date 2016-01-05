@@ -13,7 +13,6 @@ var wwwPathPtr, restPathPtr *string
 var doLogPtr, doLogRestPtr *bool
 var portPtr *int
 
-
 type LoggingResponseWriter struct {
 	logResponse bool
 	http.ResponseWriter
