@@ -5,10 +5,8 @@ import (
 	"testing"
 )
 
-func setTestpath(m *Menu) (filepath string) {
-	filepath = os.TempDir() + "/testmodel.json"
-	m.testpath = filepath
-	return
+func getTestpath() string {
+	return os.TempDir() + "/testmodel.json"
 }
 
 func remove(filepath string) {
@@ -17,10 +15,10 @@ func remove(filepath string) {
 
 func TestModelSavesToFile(t *testing.T) {
 	m := &Menu{}
-	filepath := setTestpath(m)
+	filepath := getTestpath()
 	defer remove(filepath)
 
-	err := m.Save()
+	err := m.Save(filepath)
 	if err != nil {
 		t.Errorf("Error in save: %v", err)
 	}
@@ -37,10 +35,10 @@ func TestModelReadsFile(t *testing.T) {
 	m := &Menu{}
 	m.Put(&MenuItem{ID: "item-one", Name: "Item one"})
 
-	filepath := setTestpath(m)
+	filepath := getTestpath()
 	defer remove(filepath)
 
-	err := m.Save()
+	err := m.Save(filepath)
 	if err != nil {
 		t.Errorf("Error in save: %v", err)
 	}
@@ -50,7 +48,7 @@ func TestModelReadsFile(t *testing.T) {
 		t.Errorf("Precondition failed: reset did not work")
 	}
 
-	err = m.Load()
+	err = m.Load(filepath)
 	if err != nil {
 		t.Errorf("Error in load: %v", err)
 	}
