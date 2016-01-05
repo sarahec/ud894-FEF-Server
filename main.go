@@ -44,9 +44,10 @@ func logWrapper(handler http.HandlerFunc) http.Handler {
 	})
 }
 
-func menuServer(menu *Menu) http.HandlerFunc {
+func getAllItemsServer(menu *Menu) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b, _ := json.Marshal(menu.Items) // Backbone wants the only the array
+		w.Header().Set("Content-Type", "application/json")
 		w.Write(b)
 	})
 }
@@ -76,6 +77,6 @@ func main() {
 	menu := &Menu{}
 	menu.Load(filepath)
 	http.Handle("/", http.FileServer(http.Dir(*wwwPathPtr)))
-	http.Handle(*restPathPtr, logWrapper(menuServer(menu)))
+	http.Handle(*restPathPtr, logWrapper(getAllItemsServer(menu)))
 	http.ListenAndServe(":"+strconv.Itoa(*portPtr), nil)
 }
