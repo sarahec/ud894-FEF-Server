@@ -13,25 +13,43 @@ var wwwPathPtr, restPathPtr *string
 var doLogPtr, doLogRestPtr *bool
 var portPtr *int
 
-var menu *Menu
 
-func logRequest(r *http.Request) {
-	method := r.Method
-	if method == "" {
-		method = "GET"
-	}
-	log.Printf("< %s %s\n", method, r.RequestURI)
+type LoggingResponseWriter struct {
+	logResponse bool
+	http.ResponseWriter
 }
 
-func menuHandler(w http.ResponseWriter, r *http.Request) {
-	if *doLogPtr || *doLogRestPtr {
-		logRequest(r)
+func (w *LoggingResponseWriter) Write(data []byte) (int, error) {
+	if w.logResponse {
+		log.Printf("> %s\n\n", data)
 	}
-	b, _ := json.Marshal(menu.Items) // Backbone wants the only the array
-	if *doLogRestPtr {
-		log.Printf("> %s\n\n", b)
-	}
-	w.Write(b)
+	return w.ResponseWriter.Write(data)
+}
+
+func logWrapper(handler http.HandlerFunc) http.Handler {
+	doLogRequest := *doLogPtr || *doLogRestPtr
+	doLogResponse := *doLogRestPtr
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		writer := &LoggingResponseWriter{doLogResponse, w}
+
+		if doLogRequest {
+			method := r.Method
+			if method == "" {
+				method = "GET"
+			}
+			log.Printf("< %s %s\n", method, r.RequestURI)
+		}
+
+		handler(writer, r)
+	})
+}
+
+func menuServer(menu *Menu) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b, _ := json.Marshal(menu.Items) // Backbone wants the only the array
+		w.Write(b)
+	})
 }
 
 func main() {
@@ -56,9 +74,9 @@ func main() {
 
 	const filepath = "_data/menu.json"
 
-	menu = &Menu{}
+	menu := &Menu{}
 	menu.Load(filepath)
 	http.Handle("/", http.FileServer(http.Dir(*wwwPathPtr)))
-	http.HandleFunc(*restPathPtr, menuHandler)
+	http.Handle(*restPathPtr, logWrapper(menuServer(menu)))
 	http.ListenAndServe(":"+strconv.Itoa(*portPtr), nil)
 }
