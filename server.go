@@ -25,20 +25,16 @@ func (w *LoggingResponseWriter) Write(data []byte) (int, error) {
 }
 
 func logWrapper(handler http.HandlerFunc) http.Handler {
-	doLogRequest := *doLogPtr || *doLogRestPtr
-	doLogResponse := *doLogRestPtr
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		writer := &LoggingResponseWriter{doLogResponse, w}
+		writer := &LoggingResponseWriter{*doLogPtr, w}
 
-		if doLogRequest {
+		if *doLogPtr {
 			method := r.Method
 			if method == "" {
 				method = "GET"
 			}
 			log.Printf("< %s %s\n", method, r.RequestURI)
 		}
-
 		handler(writer, r)
 	})
 }
