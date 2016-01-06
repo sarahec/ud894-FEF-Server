@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -12,45 +10,6 @@ import (
 var wwwPathPtr, restPathPtr *string
 var doLogPtr, doLogRestPtr *bool
 var portPtr *int
-
-type LoggingResponseWriter struct {
-	logResponse bool
-	http.ResponseWriter
-}
-
-func (w *LoggingResponseWriter) Write(data []byte) (int, error) {
-	if w.logResponse {
-		log.Printf("> %s\n\n", data)
-	}
-	return w.ResponseWriter.Write(data)
-}
-
-func logWrapper(handler http.HandlerFunc) http.Handler {
-	doLogRequest := *doLogPtr || *doLogRestPtr
-	doLogResponse := *doLogRestPtr
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		writer := &LoggingResponseWriter{doLogResponse, w}
-
-		if doLogRequest {
-			method := r.Method
-			if method == "" {
-				method = "GET"
-			}
-			log.Printf("< %s %s\n", method, r.RequestURI)
-		}
-
-		handler(writer, r)
-	})
-}
-
-func getAllItemsServer(menu *Menu) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b, _ := json.Marshal(menu.Items) // Backbone wants the only the array
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(b)
-	})
-}
 
 func main() {
 	portPtr = flag.Int("port", 8000, "server port (on localhost, default 8000")
@@ -77,6 +36,7 @@ func main() {
 	menu := &Menu{}
 	menu.Load(filepath)
 	http.Handle("/", http.FileServer(http.Dir(*wwwPathPtr)))
-	http.Handle(*restPathPtr, logWrapper(getAllItemsServer(menu)))
+	http.Handle(*restPathPtr, logWrapper(GetAllItemsServer(menu)))
+	http.Handle(*restPathPtr+"/", logWrapper(GetItemByIDServer(menu, *restPathPtr)))
 	http.ListenAndServe(":"+strconv.Itoa(*portPtr), nil)
 }
