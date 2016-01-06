@@ -10,6 +10,8 @@ import (
 const CONTENT_TYPE = "Content-Type"
 const TYPE_JSON = "application/json"
 
+// === Logging support
+
 type LoggingResponseWriter struct {
 	logResponse bool
 	http.ResponseWriter
@@ -41,6 +43,8 @@ func logWrapper(handler http.HandlerFunc) http.Handler {
 	})
 }
 
+// === HTTP handlers
+
 func idFromURL(reqURL *url.URL, prefix string) string {
 	return reqURL.Path[len(prefix)+1:]
 }
@@ -67,7 +71,7 @@ func GetItemByIDServer(menu *Menu, prefix string) http.HandlerFunc {
 	})
 }
 
-func PutItemServer(menu *Menu, prefix string) http.HandlerFunc {
+func PutItemServer(menu *Menu, prefix string, filepath string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestedID := idFromURL(r.URL, prefix)
 		index := menu.IndexOf(requestedID)
@@ -87,6 +91,10 @@ func PutItemServer(menu *Menu, prefix string) http.HandlerFunc {
 		// Tell the client if this was an update (default is 200 OK, which would be an update)
 		if index == -1 {
 			w.WriteHeader(http.StatusCreated)
+		}
+
+		if filepath != "" {
+			menu.Save(filepath)
 		}
 	})
 }

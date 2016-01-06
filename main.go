@@ -36,7 +36,10 @@ func main() {
 	menu := &Menu{}
 	menu.Load(filepath)
 	http.Handle("/", http.FileServer(http.Dir(*wwwPathPtr)))
-	http.Handle(*restPathPtr, logWrapper(GetAllItemsServer(menu)))
-	http.Handle(*restPathPtr+"/", logWrapper(GetItemByIDServer(menu, *restPathPtr)))
+	http.Handle(*restPathPtr, logWrapper(NewRouter(GetAllItemsServer(menu), nil)))
+	// TODO need to handle file saving after the put
+	http.Handle(*restPathPtr+"/", logWrapper(NewRouter(
+		GetItemByIDServer(menu, *restPathPtr),
+		PutItemServer(menu, *restPathPtr, filepath))))
 	http.ListenAndServe(":"+strconv.Itoa(*portPtr), nil)
 }

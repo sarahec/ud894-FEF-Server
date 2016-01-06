@@ -81,7 +81,7 @@ func TestReplaceExisting(t *testing.T) {
 	reader := bytes.NewReader(payload)
 	req, _ := http.NewRequest("PUT", path, reader)
 	w := httptest.NewRecorder()
-	h := PutItemServer(menu, PREFIX)
+	h := PutItemServer(menu, PREFIX, "")
 	h.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
@@ -105,7 +105,7 @@ func TestAddNewItem(t *testing.T) {
 	reader := bytes.NewReader(payload)
 	req, _ := http.NewRequest("PUT", path, reader)
 	w := httptest.NewRecorder()
-	h := PutItemServer(menu, PREFIX)
+	h := PutItemServer(menu, PREFIX, "")
 	h.ServeHTTP(w, req)
 
 	if w.Code != http.StatusCreated {
