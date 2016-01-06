@@ -7,6 +7,9 @@ import (
 	"net/url"
 )
 
+const CONTENT_TYPE = "Content-Type"
+const TYPE_JSON = "application/json"
+
 type LoggingResponseWriter struct {
 	logResponse bool
 	http.ResponseWriter
@@ -42,21 +45,10 @@ func idFromURL(reqURL *url.URL, prefix string) string {
 	return reqURL.Path[len(prefix)+1:]
 }
 
-func findItemByID(requestedID string, menu *Menu) *MenuItem {
-	index := -0
-	for index < len(menu.Items) {
-		if menu.Items[index].ID == requestedID {
-			return &menu.Items[index]
-		}
-		index += 1
-	}
-	return nil
-}
-
 func GetAllItemsServer(menu *Menu) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b, _ := json.Marshal(menu.Items) // Backbone wants the only the array
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set(CONTENT_TYPE, TYPE_JSON)
 		w.Write(b)
 	})
 }
@@ -64,13 +56,56 @@ func GetAllItemsServer(menu *Menu) http.HandlerFunc {
 func GetItemByIDServer(menu *Menu, prefix string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestedID := idFromURL(r.URL, prefix)
-		probe := findItemByID(requestedID, menu)
+		probe := menu.Get(requestedID)
 		if probe == nil {
 			w.WriteHeader(http.StatusNotFound)
 		} else {
-			b, _ := json.Marshal(*probe) // Backbone wants the only the array
-			w.Header().Set("Content-Type", "application/json")
+			b, _ := json.Marshal(*probe) // return only the element
+			w.Header().Set(CONTENT_TYPE, TYPE_JSON)
 			w.Write(b)
+		}
+	})
+}
+
+func PutItemServer(menu *Menu, prefix string) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestedID := idFromURL(r.URL, prefix)
+		index := menu.IndexOf(requestedID)
+
+		var item MenuItem
+		dec := json.NewDecoder(r.Body)
+		err := dec.Decode(&item)
+
+		if err != nil || item.ID == "" {
+			log.Printf("ERROR: %v\n", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		menu.Put(&item)
+
+		// Tell the client if this was an update (default is 200 OK, which would be an update)
+		if index == -1 {
+			w.WriteHeader(http.StatusCreated)
+		}
+	})
+}
+
+// === Handle switching between Get and Put
+
+func NewRouter(get http.HandlerFunc, put http.HandlerFunc) http.HandlerFunc {
+	if get == nil && put == nil {
+		log.Fatal("Supply a get and/or put method to the router")
+	}
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == "" || r.Method == "GET" && get != nil:
+			get(w, r)
+		case r.Method == "PUT" && put != nil:
+			put(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
 }

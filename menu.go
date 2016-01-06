@@ -22,7 +22,7 @@ type MenuItem struct {
 
 // Searches for the specified id string in the menu, returning its index
 // or -1 if not found
-func (menu *Menu) indexOf(id string) int {
+func (menu *Menu) IndexOf(id string) int {
 	for i, v := range menu.Items {
 		if v.ID == id {
 			return i
@@ -38,7 +38,7 @@ func (menu *Menu) reset() {
 
 // Put this menu item into the collection, overwriting the one with the same ID if it exists.
 func (menu *Menu) Put(item *MenuItem) {
-	probe := menu.indexOf(item.ID)
+	probe := menu.IndexOf(item.ID)
 	if probe == -1 {
 		menu.Items = append(menu.Items, *item)
 	} else {
@@ -48,7 +48,7 @@ func (menu *Menu) Put(item *MenuItem) {
 
 // Get a menu item from the collection, matching in ID. Return nil if not found.
 func (menu *Menu) Get(id string) *MenuItem {
-	probe := menu.indexOf(id)
+	probe := menu.IndexOf(id)
 	if probe == -1 {
 		return nil
 	}
@@ -58,7 +58,7 @@ func (menu *Menu) Get(id string) *MenuItem {
 
 // Remove the menu item with the specified ID from the collection
 func (menu *Menu) Remove(id string) {
-	i := menu.indexOf(id)
+	i := menu.IndexOf(id)
 	if i == -1 {
 		return
 	}
