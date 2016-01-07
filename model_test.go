@@ -19,18 +19,18 @@ func TestPutSingleValue(t *testing.T) {
 
 func TestGetFromEmpty(t *testing.T) {
 	m := &Menu{}
-	v := m.Get("nope")
-	if v != nil {
-		t.Errorf("Expected nil, but received %v", v)
+	_, ok := m.GetByID("nope")
+	if ok {
+		t.Error("Expected no item")
 	}
 }
 
 func TestGetMissingValue(t *testing.T) {
 	m := &Menu{}
 	m.Put(&MenuItem{ID: "item-one"})
-	v := m.Get("nope")
-	if v != nil {
-		t.Errorf("Expected nil, but received %v", v)
+	_, ok := m.GetByID("nope")
+	if ok {
+		t.Error("Expected no item")
 	}
 }
 
@@ -38,9 +38,9 @@ func TestGetSingleValue(t *testing.T) {
 	m := &Menu{}
 	item := &MenuItem{ID: "item-one"}
 	m.Put(item)
-	v := m.Get(item.ID)
-	if v == nil {
-		t.Errorf("Expected item, but received nil")
+	v, ok := m.GetByID(item.ID)
+	if v == nil || !ok {
+		t.Errorf("Expected item, but received none")
 	}
 }
 
@@ -50,7 +50,7 @@ func TestPutReplacementValue(t *testing.T) {
 	m.Put(item)
 	item2 := &MenuItem{ID: "item-one", Name: "Item one's replacement"}
 	m.Put(item2) // same item
-	if probe := m.Get(item.ID); probe.Name != item2.Name {
+	if probe, _ := m.GetByID(item.ID); probe.Name != item2.Name {
 		t.Errorf("Expected replacement, but found name %s", probe.Name)
 	}
 }
@@ -62,15 +62,15 @@ func TestRemove(t *testing.T) {
 	if length := len(m.Items); length != 2 {
 		t.Errorf("Precondition error: Expected two items, but counted %v", length)
 	}
-	m.Remove("item-one")
+	m.RemoveByID("item-one")
 	if length := len(m.Items); length != 1 {
 		t.Errorf("Expected one item after removal, but counted %v", length)
 	}
-	if probe := m.Get("item-one"); probe != nil {
-		t.Errorf("Expected item one to be deleted, but found %v", probe)
+	if _, ok := m.GetByID("item-one"); ok {
+		t.Error("Expected item one to be deleted")
 	}
-	if m.Get("item-two") == nil {
-		t.Errorf("Expected item two to exist")
+	if _, ok := m.GetByID("item-two"); !ok {
+		t.Error("Expected item two to exist")
 	}
 }
 

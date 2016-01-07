@@ -56,8 +56,8 @@ func GetAllItemsServer(menu *Menu) http.HandlerFunc {
 func GetItemByIDServer(menu *Menu, prefix string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestedID := idFromURL(r.URL, prefix)
-		probe := menu.Get(requestedID)
-		if probe == nil {
+		probe, ok := menu.GetByID(requestedID)
+		if !ok {
 			w.WriteHeader(http.StatusNotFound)
 		} else {
 			b, _ := json.Marshal(*probe) // return only the element
@@ -70,22 +70,21 @@ func GetItemByIDServer(menu *Menu, prefix string) http.HandlerFunc {
 func PutItemServer(menu *Menu, prefix string, filepath string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestedID := idFromURL(r.URL, prefix)
-		index := menu.IndexOf(requestedID)
 
 		var item MenuItem
 		dec := json.NewDecoder(r.Body)
 		err := dec.Decode(&item)
 
-		if err != nil || item.ID == "" {
+		if err != nil || item.ID == "" || item.ID != requestedID {
 			log.Printf("ERROR: %v\n", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		menu.Put(&item)
+		appended := menu.Put(&item)
 
 		// Tell the client if this was an update (default is 200 OK, which would be an update)
-		if index == -1 {
+		if appended {
 			w.WriteHeader(http.StatusCreated)
 		}
 

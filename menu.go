@@ -20,50 +20,54 @@ type MenuItem struct {
 	Photographer string  `json:"photographer"`
 }
 
-// Searches for the specified id string in the menu, returning its index
-// or -1 if not found
-func (menu *Menu) IndexOf(id string) int {
-	for i, v := range menu.Items {
-		if v.ID == id {
-			return i
-		}
-	}
-	return -1
-}
-
-// Put this menu item into the collection, overwriting the one with the same ID if it exists.
+// Reset the mnu to its empty state. Used only in init testing
 func (menu *Menu) reset() {
 	menu.Items = make([]MenuItem, 0)
 }
 
-// Put this menu item into the collection, overwriting the one with the same ID if it exists.
-func (menu *Menu) Put(item *MenuItem) {
-	probe := menu.IndexOf(item.ID)
-	if probe == -1 {
-		menu.Items = append(menu.Items, *item)
-	} else {
-		menu.Items[probe] = *item
+// Finds the menu item with a given ID and returns its index
+// and true if found
+func (menu *Menu) findIndex(id string) (i int, found bool) {
+	for i, v := range menu.Items {
+		if v.ID == id {
+			return i, true
+		}
 	}
+	return 0, false
 }
 
-// Get a menu item from the collection, matching in ID. Return nil if not found.
-func (menu *Menu) Get(id string) *MenuItem {
-	probe := menu.IndexOf(id)
-	if probe == -1 {
-		return nil
+// Put this menu item into the collection, overwriting the one with
+// the same ID if it exists. Returns a bool indicating whether this
+// item was appended
+
+func (menu *Menu) Put(item *MenuItem) (appended bool) {
+	index, found := menu.findIndex(item.ID)
+	if !found {
+		menu.Items = append(menu.Items, *item)
+	} else {
+		menu.Items[index] = *item
 	}
-	found := menu.Items[probe]
-	return &found
+	return !found
+}
+
+// Get a menu item from the collection, matching by ID.
+// Return the found item and true if found (false if not)
+func (menu *Menu) GetByID(id string) (*MenuItem, bool) {
+	index, found := menu.findIndex(id)
+	if !found {
+		return nil, false
+	}
+	return &menu.Items[index], true
 }
 
 // Remove the menu item with the specified ID from the collection
-func (menu *Menu) Remove(id string) {
-	i := menu.IndexOf(id)
-	if i == -1 {
-		return
+func (menu *Menu) RemoveByID(id string) (ok bool) {
+	i, ok := menu.findIndex(id)
+	if ok {
+		// delete the ith item
+		menu.Items = menu.Items[:i+copy(menu.Items[i:], menu.Items[i+1:])]
 	}
-	// delete the ith item
-	menu.Items = menu.Items[:i+copy(menu.Items[i:], menu.Items[i+1:])]
+	return
 }
 
 func (menu *Menu) Save(path string) error {
@@ -71,8 +75,7 @@ func (menu *Menu) Save(path string) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(path, body, 0644)
-	return err
+	return ioutil.WriteFile(path, body, 0644)
 }
 
 func (menu *Menu) Load(path string) error {

@@ -55,7 +55,7 @@ func TestModelReadsFile(t *testing.T) {
 	if len := len(m.Items); len != 1 {
 		t.Errorf("Expected one item after load, but counted %v", len)
 	}
-	if m.Get("item-one") == nil {
+	if _, ok := m.GetByID("item-one"); !ok {
 		t.Errorf("Expected to find item-one")
 	}
 }
