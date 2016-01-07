@@ -24,11 +24,11 @@ func (w *LoggingResponseWriter) Write(data []byte) (int, error) {
 	return w.ResponseWriter.Write(data)
 }
 
-func logWrapper(handler http.HandlerFunc) http.Handler {
+func logWrapper(doLog bool, handler http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		writer := &LoggingResponseWriter{*doLogPtr, w}
+		writer := &LoggingResponseWriter{doLog, w}
 
-		if *doLogPtr {
+		if doLog {
 			method := r.Method
 			if method == "" {
 				method = "GET"
