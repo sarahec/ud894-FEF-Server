@@ -7,8 +7,7 @@ serves the app files and provides a REST interface for reading and storing data.
 
 1. [Download](https://golang.org/dl/) and install the Go programming language
 2. Download or clone this project
-3. Compile the server:
-`go build main.go menu.go server.go`
+3. Compile the server: `go build`
 4. Run the `main` program to start the server . Use the `--www=` flag to point
 to your front-end code (e.g. on Mac OS X and Linux
 `./main --www=../FEF-UdaciMeals-Backbone`)
