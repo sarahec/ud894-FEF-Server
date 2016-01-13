@@ -29,6 +29,7 @@ func logWrapper(doLog bool, handler http.HandlerFunc) http.Handler {
 		writer := &LoggingResponseWriter{doLog, w}
 
 		if doLog {
+		    // TODO use httputil.DumpRequest?
 			log.Printf("< %s %s\n", r.Method, r.RequestURI)
 		}
 		handler(writer, r)
