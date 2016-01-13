@@ -7,8 +7,8 @@ import (
 	"net/url"
 )
 
-const CONTENT_TYPE = "Content-Type"
-const TYPE_JSON = "application/json"
+const contentType = "Content-Type"
+const appJSON = "application/json"
 
 // === Logging support
 
@@ -48,7 +48,7 @@ func idFromURL(reqURL *url.URL, prefix string) string {
 func GetAllItemsServer(menu *Menu) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b, _ := json.Marshal(menu.Items) // Backbone wants the only the array
-		w.Header().Set(CONTENT_TYPE, TYPE_JSON)
+		w.Header().Set(contentType, appJSON)
 		w.Write(b)
 	})
 }
@@ -61,7 +61,7 @@ func GetItemByIDServer(menu *Menu, prefix string) http.HandlerFunc {
 			w.WriteHeader(http.StatusNotFound)
 		} else {
 			b, _ := json.Marshal(*probe) // return only the element
-			w.Header().Set(CONTENT_TYPE, TYPE_JSON)
+			w.Header().Set(contentType, appJSON)
 			w.Write(b)
 		}
 	})
