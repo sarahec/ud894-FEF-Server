@@ -29,11 +29,7 @@ func logWrapper(doLog bool, handler http.HandlerFunc) http.Handler {
 		writer := &LoggingResponseWriter{doLog, w}
 
 		if doLog {
-			method := r.Method
-			if method == "" {
-				method = "GET"
-			}
-			log.Printf("< %s %s\n", method, r.RequestURI)
+			log.Printf("< %s %s\n", r.Method, r.RequestURI)
 		}
 		handler(writer, r)
 	})
