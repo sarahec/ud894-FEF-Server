@@ -108,8 +108,8 @@ func TestAddNewItem(t *testing.T) {
 	h := PutItemServer(menu, PREFIX, "")
 	h.ServeHTTP(w, req)
 
-	if w.Code != http.StatusCreated {
-		t.Errorf("update didn't return %v, returned %v", http.StatusOK, w.Code)
+	if w.Code != http.StatusNoContent {
+		t.Errorf("update didn't return %v, returned %v", http.StatusNoContent, w.Code)
 	}
 
 	// Successful execution should have changed the menu

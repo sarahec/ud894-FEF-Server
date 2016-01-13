@@ -81,7 +81,7 @@ func PutItemServer(menu *Menu, prefix string, filepath string) http.HandlerFunc 
 
 		// Tell the client if this was an update (default is 200 OK, which would be an update)
 		if appended {
-			w.WriteHeader(http.StatusCreated)
+			w.WriteHeader(http.StatusNoContent) // Not returning the object
 		}
 
 		if filepath != "" {
