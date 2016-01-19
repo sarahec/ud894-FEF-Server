@@ -10,6 +10,13 @@ import (
 const filepath = "_data/menu.json"
 const resetpath = "_data/starter_menu.json"
 
+func addLogging(logging bool, handler http.Handler) http.Handler {
+	if !logging {
+		return handler
+	}
+	return logWrapper(handler)
+}
+
 func main() {
 	port := flag.Int("port", 8000, "server port (on localhost, default 8000")
 	wwwPath := flag.String("www", "_www", "path for serving web files")
@@ -38,10 +45,9 @@ func main() {
 		menu.Load(filepath)
 	}
 	http.Handle("/", http.FileServer(http.Dir(*wwwPath)))
-	http.Handle(*restPath, logWrapper(*doLog, NewRouter(GetAllItemsServer(menu), nil)))
-	http.Handle(*restPath+"/", logWrapper(*doLog, NewRouter(
-		GetItemByIDServer(menu, *restPath),
-		PutItemServer(menu, *restPath, filepath))))
+	server := &Server{menu, filepath}
+	handler := addLogging(*doLog, http.StripPrefix(*restPath, server))
+	http.Handle(*restPath, handler)
 	// TODO catch and report errors
 	http.ListenAndServe(":"+strconv.Itoa(*port), nil)
 }
