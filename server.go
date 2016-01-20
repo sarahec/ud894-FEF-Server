@@ -15,7 +15,10 @@ const contentType = "Content-Type"
 const appJSON = "application/json"
 
 func (s *Server) handleGetAll(w http.ResponseWriter, r *http.Request) {
-	b, _ := json.Marshal(s.menu.Items) // Backbone wants the only the array
+	// Backbone wants the only the array (by default), but sending top-level
+	// JSON arrays is insecure. Sent the whole object and patch the Backbone
+	// app instead.
+	b, _ := json.Marshal(s.menu)
 	w.Header().Set(contentType, appJSON)
 	w.Write(b)
 }

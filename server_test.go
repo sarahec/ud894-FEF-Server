@@ -27,7 +27,7 @@ func TestGetAll(t *testing.T) {
 	if contentType != "application/json" {
 		t.Errorf("GET all didn't return application/json, returned %v", contentType)
 	}
-	b, _ := json.Marshal(menu.Items) // Backbone wants the only the array
+	b, _ := json.Marshal(menu)
 	if w.Body.String() != string(b) {
 		t.Errorf("GET all didn't return menu items array as JSON, returned %v", w.Body.String())
 	}
@@ -117,5 +117,3 @@ func TestAddNewItem(t *testing.T) {
 	}
 
 }
-
-// TODO Integration test the server's HTTP routing
