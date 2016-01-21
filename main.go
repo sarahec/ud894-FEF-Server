@@ -7,8 +7,6 @@ import (
 	"strconv"
 )
 
-const filepath = "_data/menu.json"
-const resetpath = "_data/starter_menu.json"
 const noLogging = 0
 
 func addLogging(logLevel int, handler http.Handler) http.Handler {
@@ -19,6 +17,9 @@ func addLogging(logLevel int, handler http.Handler) http.Handler {
 }
 
 func main() {
+	const datapath = "_data/menu.json"
+	const resetpath = "_data/starter_menu.json"
+
 	port := flag.Int("port", 8000, "server port (on localhost, default 8000")
 	wwwPath := flag.String("www", "_www", "path for serving web files")
 	restPath := flag.String("api", "/api/items", "prefix for REST path")
@@ -44,7 +45,7 @@ func main() {
 	if *reset {
 		menu.Load(resetpath)
 	} else {
-		menu.Load(filepath)
+		menu.Load(datapath)
 	}
 
 	logLevel := noLogging
@@ -56,7 +57,7 @@ func main() {
 	}
 
 	http.Handle("/", http.FileServer(http.Dir(*wwwPath)))
-	server := &Server{menu, filepath}
+	server := &Server{menu, datapath}
 	handler := addLogging(logLevel, http.StripPrefix(*restPath, server))
 	http.Handle(*restPath, handler)
 	http.ListenAndServe(":"+strconv.Itoa(*port), nil)

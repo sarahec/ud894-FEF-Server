@@ -55,8 +55,8 @@ func (s *Server) handlePut(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent) // Not returning the object
 	}
 
-	if filepath != "" {
-		s.menu.Save(filepath)
+	if s.filepath != "" {
+		s.menu.Save(s.filepath)
 	}
 }
 
