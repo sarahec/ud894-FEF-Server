@@ -7,11 +7,12 @@ serves the app files and provides a REST interface for reading and storing data.
 
 1. [Download](https://golang.org/dl/) and install the Go programming language
 2. Download or clone this project
-3. Compile the server: `go build -o main`
-4. Run the `main` program to start the server . Use the `--www=` flag to point
+3. Change into the `server` drectory
+3. Compile the server: `go build`
+4. Run the `server` program to start the server . Use the `--www=` flag to point
 to your front-end code (e.g. on Mac OS X and Linux
-`./main --www=../FEF-UdaciMeals-Backbone`)
-5. Use the `--logrest` flag to see all of the incoming and outgoing traffic
+`./server --www=../../FEF-UdaciMeals-Backbone`)
+5. Use the `--log` flag to see all of the incoming and outgoing traffic
 from the server.
 
 ## Server details
@@ -20,7 +21,7 @@ All of the data is stored in JSON format in the `_data` directory. `menu.json`
 is the storage file.
 
 The server implements a REST API at `/api/items`:
-* `GET /api/items` (no trailing slash) returns a JSON array of menu items
+* `GET /api/items` (no trailing slash) returns an object with a JSON array of menu items
 * `PUT /api/items` is disallowed (you cannot put the whole array at once)
 * `GET /api/items/[id]` (e.g. `GET /api/items/strawberry-shortcake`) gets the
 menu item with the specified ID and returns it as JSON
