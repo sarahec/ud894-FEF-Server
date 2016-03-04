@@ -14,11 +14,11 @@ func remove(filepath string) {
 }
 
 func TestModelSavesToFile(t *testing.T) {
-	m := &Menu{}
 	filepath := getTestpath()
+	m := &Menu{Path: filepath}
 	defer remove(filepath)
 
-	err := m.Save(filepath)
+	err := m.Save()
 	if err != nil {
 		t.Errorf("Error in save: %v", err)
 	}
@@ -32,13 +32,12 @@ func TestModelSavesToFile(t *testing.T) {
 }
 
 func TestModelReadsFile(t *testing.T) {
-	m := &Menu{}
-	m.Put(&MenuItem{ID: "item-one", Name: "Item one"})
-
 	filepath := getTestpath()
 	defer remove(filepath)
+	m := &Menu{Path: filepath}
+	m.Put(&MenuItem{ID: "item-one", Name: "Item one"})
 
-	err := m.Save(filepath)
+	err := m.Save()
 	if err != nil {
 		t.Errorf("Error in save: %v", err)
 	}
@@ -48,7 +47,7 @@ func TestModelReadsFile(t *testing.T) {
 		t.Errorf("Precondition failed: reset did not work")
 	}
 
-	err = m.Load(filepath)
+	err = m.Load()
 	if err != nil {
 		t.Errorf("Error in load: %v", err)
 	}

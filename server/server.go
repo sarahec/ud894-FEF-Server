@@ -7,8 +7,7 @@ import (
 )
 
 type Server struct {
-	menu     *Menu
-	filepath string
+	menu *Menu
 }
 
 const contentType = "Content-Type"
@@ -55,9 +54,7 @@ func (s *Server) handlePut(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent) // Not returning the object
 	}
 
-	if s.filepath != "" {
-		s.menu.Save(s.filepath)
-	}
+	s.menu.Save()
 }
 
 // Adopt the http.Handler interface

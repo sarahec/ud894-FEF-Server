@@ -2,6 +2,7 @@ package main
 
 type Menu struct {
 	Items []MenuItem `json:"menu"`
+	Path  string     `json:"-"`
 }
 
 type MenuItem struct {

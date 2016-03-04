@@ -37,8 +37,8 @@ func TestMenuLoading(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error in BuildStorageDir: %v", err)
 	}
-	m := &Menu{}
-	m.Load(filePath)
+	m := &Menu{Path: filePath}
+	m.Load()
 	if _, ok := m.GetByID("strawberry-pudding"); !ok {
 		t.Error("Menu not loaded")
 	}
@@ -49,16 +49,16 @@ func TestMenuSaving(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error in BuildStorageDir: %v", err)
 	}
-	m := &Menu{}
+	m := &Menu{Path: filePath}
 	m.Put(&MenuItem{ID: "item-one"})
-	err = m.Save(filePath)
+	err = m.Save()
 	if err != nil {
 		t.Errorf("Error saving menu: %v", err)
 	}
 
 	// Now load into a new menu
-	m2 := &Menu{}
-	err = m2.Load(filePath)
+	m2 := &Menu{Path: filePath}
+	err = m2.Load()
 	if err != nil {
 		t.Errorf("Error saving menu: %v", err)
 	}

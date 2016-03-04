@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
-	"log"
 )
 
 const noLogging = 0
@@ -46,8 +46,8 @@ func main() {
 		log.Fatal("Error creating backing store: %v", err)
 	}
 
-	menu := &Menu{}
-	menu.Load(filePath)
+	menu := &Menu{Path: filePath}
+	menu.Load()
 
 	logLevel := noLogging
 	switch {
@@ -58,7 +58,7 @@ func main() {
 	}
 
 	http.Handle("/", http.FileServer(http.Dir(*wwwPath)))
-	server := &Server{menu, filePath}
+	server := &Server{menu}
 	handler := addLogging(logLevel, http.StripPrefix(*restPath, server))
 	http.Handle(*restPath, handler)
 	http.ListenAndServe(":"+strconv.Itoa(*port), nil)
