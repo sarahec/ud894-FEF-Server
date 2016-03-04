@@ -4,6 +4,6 @@
 # No editing tempfiles either
 *~
 
-# Nor the built binary. (I know, I'm a spoilsport)
-main
+# No temp directory
+_data
 
