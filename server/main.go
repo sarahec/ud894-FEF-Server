@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"log"
 )
 
 const noLogging = 0
@@ -17,8 +18,7 @@ func addLogging(logLevel int, handler http.Handler) http.Handler {
 }
 
 func main() {
-	const datapath = "../_data/menu.json"
-	const resetpath = "../_data/starter_menu.json"
+	const dataPath = "../_data"
 
 	port := flag.Int("port", 8000, "server port (on localhost, default 8000")
 	wwwPath := flag.String("www", "../_www", "path for serving web files")
@@ -31,7 +31,7 @@ func main() {
 
 	if *summarize {
 		if *reset {
-			fmt.Printf("  Re-loading model from %v\n", resetpath)
+			fmt.Println("  Re-loading model")
 		}
 		fmt.Printf("  Serving on http://localhost:%v/\n", *port)
 		fmt.Printf("  Serving files from %v on /\n", *wwwPath)
@@ -41,12 +41,13 @@ func main() {
 		}
 	}
 
-	menu := &Menu{}
-	if *reset {
-		menu.Load(resetpath)
-	} else {
-		menu.Load(datapath)
+	filePath, err := BuildStorageDir(*reset, dataPath)
+	if err != nil {
+		log.Fatal("Error creating backing store: %v", err)
 	}
+
+	menu := &Menu{}
+	menu.Load(filePath)
 
 	logLevel := noLogging
 	switch {
@@ -57,7 +58,7 @@ func main() {
 	}
 
 	http.Handle("/", http.FileServer(http.Dir(*wwwPath)))
-	server := &Server{menu, datapath}
+	server := &Server{menu, filePath}
 	handler := addLogging(logLevel, http.StripPrefix(*restPath, server))
 	http.Handle(*restPath, handler)
 	http.ListenAndServe(":"+strconv.Itoa(*port), nil)

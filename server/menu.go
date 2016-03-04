@@ -1,10 +1,5 @@
 package main
 
-import (
-	"encoding/json"
-	"io/ioutil"
-)
-
 type Menu struct {
 	Items []MenuItem `json:"menu"`
 }
@@ -68,21 +63,4 @@ func (menu *Menu) RemoveByID(id string) (ok bool) {
 		menu.Items = menu.Items[:i+copy(menu.Items[i:], menu.Items[i+1:])]
 	}
 	return
-}
-
-func (menu *Menu) Save(path string) error {
-	body, err := json.Marshal(menu)
-	if err != nil {
-		return err
-	}
-	return ioutil.WriteFile(path, body, 0644)
-}
-
-func (menu *Menu) Load(path string) error {
-	body, err := ioutil.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(body, &menu)
-	return err
 }
