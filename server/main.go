@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright 2016 Google Inc. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/GeertJohan/go.rice"
 )
 
 const noLogging = 0
@@ -33,8 +35,10 @@ func addLogging(logLevel int, handler http.Handler) http.Handler {
 	return logWrapper(logLevel, handler)
 }
 
+//go:generate rice embed-go
 func main() {
 	const dataPath = "../_data"
+	box := rice.MustFindBox("assets")
 
 	port := flag.Int("port", 8000, "server port (on localhost, default 8000")
 	wwwPath := flag.String("www", "../_www", "path for serving web files")
@@ -57,7 +61,7 @@ func main() {
 		}
 	}
 
-	filePath, err := BuildStorageDir(*reset, dataPath)
+	filePath, err := BuildStorageDir(*reset, dataPath, *box)
 	if err != nil {
 		log.Fatal("Error creating backing store: %v", err)
 	}

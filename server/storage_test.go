@@ -20,15 +20,20 @@ import (
 	"flag"
 	"os"
 	"testing"
+
+	"github.com/GeertJohan/go.rice"
 )
 
 const testPath = "../_testData"
+
+//go:generate rice embed-go
+var box = rice.MustFindBox("assets")
 
 func TestMain(m *testing.M) {
 	flag.Parse()
 	//	os.RemoveAll(testPath)
 	code := m.Run()
-	os.RemoveAll(testPath)
+os.RemoveAll(testPath)
 	os.Exit(code)
 }
 
@@ -36,7 +41,7 @@ func TestCreatingStorage(t *testing.T) {
 	if _, err := os.Stat(testPath); err == nil {
 		t.Errorf("Data dir exists before test")
 	}
-	dataPath, err := BuildStorageDir(true, testPath)
+	dataPath, err := BuildStorageDir(true, testPath, *box)
 	if err != nil {
 		t.Errorf("Error in BuildStorageDir: %v", err)
 	}
@@ -49,7 +54,7 @@ func TestCreatingStorage(t *testing.T) {
 }
 
 func TestMenuLoading(t *testing.T) {
-	filePath, err := BuildStorageDir(true, testPath)
+	filePath, err := BuildStorageDir(true, testPath, *box)
 	if err != nil {
 		t.Errorf("Error in BuildStorageDir: %v", err)
 	}
@@ -61,7 +66,7 @@ func TestMenuLoading(t *testing.T) {
 }
 
 func TestMenuSaving(t *testing.T) {
-	filePath, err := BuildStorageDir(true, testPath)
+	filePath, err := BuildStorageDir(true, testPath, *box)
 	if err != nil {
 		t.Errorf("Error in BuildStorageDir: %v", err)
 	}

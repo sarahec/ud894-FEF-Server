@@ -27,12 +27,7 @@ import (
 
 const fileName = "menu.json"
 
-//go:generate rice embed-go
-var (
-	box = rice.MustFindBox("assets")
-)
-
-func BuildStorageDir(resetContents bool, path string) (string, error) {
+func BuildStorageDir(resetContents bool, path string, box rice.Box) (string, error) {
 	// Make the directory (if needed)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		err = os.Mkdir(path, os.FileMode(0755))
